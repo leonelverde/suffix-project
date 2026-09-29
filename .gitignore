@@ -1,0 +1,7 @@
+# Ejecutables
+*.exe
+app_suffix
+
+# Carpetas de compilación antiguas
+bin/
+obj/

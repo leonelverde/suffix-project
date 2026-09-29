@@ -1,38 +1,26 @@
 CXX      := g++
-CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude -MMD -MP
-TARGET   := bin/app_suffix
+CXXFLAGS := -std=c++17 -Wall -Wextra -Iinclude
 
-SRCS := $(wildcard src/*.cpp)
-OBJS := $(patsubst src/%.cpp,obj/%.o,$(SRCS)) obj/app_main.o
+SRCS := $(wildcard src/*.cpp) apps/app_main.cpp
+HDRS := $(wildcard include/*.h)
 
-# Detección de sistema operativo para comandos de consola
+# Detección de sistema operativo
 ifdef OS
-   RM = del /Q /F /S
-   FIX_PATH = $(subst /,\,$1)
-   MKDIR = if not exist $(subst /,\,$1) mkdir $(subst /,\,$1)
+   EXE    := .exe
+   RM_CMD = -@if exist $(TARGET) del /Q $(TARGET)
 else
-   RM = rm -rf
-   FIX_PATH = $1
-   MKDIR = mkdir -p $1
+   EXE    :=
+   RM_CMD = rm -f $(TARGET)
 endif
+
+TARGET := app_suffix$(EXE)
 
 all: $(TARGET)
 
-$(TARGET): $(OBJS)
-	@$(call MKDIR,bin)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(TARGET)
-
-obj/%.o: src/%.cpp
-	@$(call MKDIR,obj)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
-
-obj/app_main.o: apps/app_main.cpp
-	@$(call MKDIR,obj)
-	$(CXX) $(CXXFLAGS) -c $< -o $@
+$(TARGET): $(SRCS) $(HDRS)
+	$(CXX) $(CXXFLAGS) $(SRCS) -o $(TARGET)
 
 clean:
-	@$(call RM,obj bin)
-
--include $(OBJS:.o=.d)
+	$(RM_CMD)
 
 .PHONY: all clean
